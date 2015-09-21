@@ -3,7 +3,7 @@
  */
 var clientFactory = require("devir-mbclient");
 
-var client = new clientFactory.core(clientFactory.netConnector, "192.168.66.174", "9009", function(isReconecting){
+var client = new clientFactory.core(clientFactory.netConnector, "localhost", "9009", function(isReconecting){
 
     console.log("Подключение установлено");
 
