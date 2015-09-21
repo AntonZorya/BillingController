@@ -19,8 +19,8 @@ exports.getById = function (id, done) {
 };
 
 exports.getAllByControllerId = function (ctrlId, done) {
-    ClientJurRepo.getAllByCtrlId(ctrlId, function (data) {
-        done(data);
+    ClientJurRepo.getAllByCtrlId(ctrlId, function (result) {
+        done(result);
     });
 };
 

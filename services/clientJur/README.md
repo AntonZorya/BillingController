@@ -10,6 +10,10 @@
     </tr>
     <tr>
         <td>/clientJur/getById</td>
-        <td>{ clientJurId: 'AnyObjectId' }</td>
+        <td>{ clientJurId: 'anyObjectId' }</td>
+    </tr>
+    <tr>
+        <td>/clientJur/getByCtrlId</td>
+        <td>{ controllerId: 'anyId' }</td>
     </tr>
 </table>

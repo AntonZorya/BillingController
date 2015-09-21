@@ -24,7 +24,6 @@ var client = new clientFactory.core(clientFactory.netConnector, "localhost", "90
     });
 
     client.registerRoute('/clientJur/getById', function (request) {
-        console.log(request.payload);
         clientJurLogic.getById(request.payload.clientJurId, function (result) {
             if (result.operationResult != 0){
                 console.log('/clientJur/getById:', result.result);
@@ -34,8 +33,11 @@ var client = new clientFactory.core(clientFactory.netConnector, "localhost", "90
     });
 
     client.registerRoute('/clientJur/getByCtrlId', function (request) {
-        clientJurLogic.getAllByControllerId(req.query.controllerId, function (data) {
-            operationResultBuilder(data, res);
+        clientJurLogic.getAllByControllerId(request.payload.controllerId, function (result) {
+            if (result.operationResult != 0){
+                console.log('/clientJur/getByCtrlId:', result.result);
+            }
+            request.sendResponse(result);
         });
     });
 

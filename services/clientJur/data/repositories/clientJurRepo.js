@@ -25,9 +25,16 @@ exports.getPeriods = function(done){
 };
 
 exports.getById = function (id, done) {
-    Collection.findById({_id: id, isDeleted: false},function (error, client) {
+    Collection.findById({isDeleted: false, _id: id},function (error, client) {
         if (error) return done(errorBuilder(error));
         return done({operationResult: 0, result: client});
+    });
+};
+
+exports.getAllByCtrlId = function (ctrlId, done) {
+    Collection.find({isDeleted: false, controllerId: ctrlId}, function (error, clients) {
+        if (error) return done(errorBuilder(error));
+        return done({operationResult: 0, result: clients});
     });
 };
 
@@ -41,13 +48,6 @@ exports.add = function (client, done) {
 
 exports.getAll = function (orgId, done) {
     Collection.find({isDeleted: false}).populate("controllerId").populate('addressId').exec(function (err, clients) {
-        if (err) return done(errorBuilder(err));
-        return done({operationResult: 0, result: clients});
-    });
-};
-
-exports.getAllByCtrlId = function (ctrlId, done) {
-    Collection.find({isDeleted: false, controllerId: ctrlId}, function (err, clients) {
         if (err) return done(errorBuilder(err));
         return done({operationResult: 0, result: clients});
     });
