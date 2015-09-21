@@ -17,8 +17,13 @@
   },
   "homepage": "https://github.com/DevirPlatform/BillingController#readme",
   "dependencies": {
+    "async": "^1.4.2",
     "devir-mbclient": "0.0.1",
     "devir-mbserver": "0.0.2",
-    "orientjs": "^2.0.0"
+    "mongoose": "^4.1.7",
+    "mongoose-deep-populate": "^2.0.1",
+    "mongoose-id-validator": "^0.1.8",
+    "orientjs": "^2.0.0",
+    "underscore": "^1.8.3"
   }
 }
