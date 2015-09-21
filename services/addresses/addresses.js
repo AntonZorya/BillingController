@@ -8,12 +8,12 @@ var client = new clientFactory.core(clientFactory.netConnector, "localhost", "90
     console.log("Подключение установлено");
 
     client.registerRoute("/address/getAllByParentId", function(request){
-        
+        request.sendResponse({data: "data"});
     });
 
 
     client.registerRoute("/address/addAddressNode", function(request){
-
+        request.sendResponse({data: "data"});
     });
 
 
