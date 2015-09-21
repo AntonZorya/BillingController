@@ -18,6 +18,6 @@
   "homepage": "https://github.com/DevirPlatform/BillingController#readme",
   "dependencies": {
     "devir-mbclient": "0.0.1",
-    "devir-mbserver": "0.0.1"
+    "devir-mbserver": "0.0.2"
   }
 }
