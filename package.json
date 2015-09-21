@@ -1,0 +1,23 @@
+{
+  "name": "billing-controller",
+  "version": "0.0.1",
+  "description": "Microservices version of Devir Controller",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevirPlatform/BillingController.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DevirPlatform/BillingController/issues"
+  },
+  "homepage": "https://github.com/DevirPlatform/BillingController#readme",
+  "dependencies": {
+    "devir-mbclient": "0.0.1",
+    "devir-mbserver": "0.0.1"
+  }
+}
