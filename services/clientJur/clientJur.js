@@ -4,7 +4,7 @@ global.rootRequire = function(name){
 }
 
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://192.168.66.27/BillingController');
+mongoose.connect('mongodb://localhost/BillingController');
 
 errorBuilder = rootRequire('/helpers/mongoose/errorBuilder').buildError;
 
