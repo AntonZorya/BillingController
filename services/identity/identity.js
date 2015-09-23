@@ -135,8 +135,28 @@ var client = mbClient(function(isReconnecting){
 
     ///GET USER LIST
     client.registerRoute('/user/getAll', function(request){
-
+        db.query('select @rid, userName, password, in("role_to_user").roleName as roles from user where isDeleted=false',{}).then(function (users) {
+                return request.sendResponse(resultFactory.success(users.map(function(item){
+                    return {rid: item.rid,
+                    userName: item.userName,
+                        password: "****",
+                        roles: item.roles
+                    }
+                })));
+        });
     });
+
+    ///CHANGE USER PASSWORD
+    client.registerRoute('/user/changePassword', function(request){
+        if (!request.payload.password || !request.payload.userId) {
+            return request.sendResponse(resultFactory.internalError(["password or userId not presented"]));
+        }
+
+        db.update('user').set({password: request.payload.password}).where({'@rid': request.payload.userId}).scalar().then(function(total){
+            return request.sendResponse(resultFactory.success(total));
+        });
+    });
+
 
     client.registerService();
 

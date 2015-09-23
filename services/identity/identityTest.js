@@ -61,14 +61,30 @@ var client = mbClient(function(isReconnecting) {
     //        }
     //    });
     //});
+    //
+    ////
+    ////client.sendRequest('/token/create', {token: "asdsdasf", userId: "#12:77", validThru: moment().add(moment.duration(2, 'M')).format('YYYY-MM-DD HH:mm:ss')}, function(err, data){
+    ////    if(err) console.log(err);
+    ////            else {
+    ////                console.log(data);
+    ////            }
+    ////})
+    ////
+    //client.sendRequest('/user/getAll', {}, function(err, data){
+    //    if(err) console.log(err);
+    //            else {
+    //                console.log(data);
+    //            }
+    //})
 
 
-    client.sendRequest('/token/create', {token: "asdsdasf", userId: "#12:77", validThru: moment().add(moment.duration(2, 'M')).format('YYYY-MM-DD HH:mm:ss')}, function(err, data){
+    client.sendRequest('/user/changePassword', {password: "newPassword", userId: "#12:49"}, function(err, data){
         if(err) console.log(err);
-                else {
-                    console.log(data);
-                }
+        else {
+            console.log(data);
+        }
     })
+
 
 
 
