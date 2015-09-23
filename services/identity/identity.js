@@ -7,7 +7,9 @@ var mbClient = require("../common/mbConnection/netConnection");
 var userModel = require("./dataLayer/models/user");
 var roleModel = require("./dataLayer/models/role");
 var linkModel = require("./dataLayer/links/role_to_user");
+var tokenModel = require("./dataLayer/models/token");
 var resultFactory = require("../common/operations/resultFactory");
+var moment = require('moment');
 
 var client = mbClient(function(isReconnecting){
 
@@ -26,7 +28,6 @@ var client = mbClient(function(isReconnecting){
                         request.sendResponse(resultFactory.success(vertex['@rid']));
                     });
             }else{
-
                 request.sendResponse(resultFactory.validationError(newUser.errors));
             }
         });
@@ -51,7 +52,6 @@ var client = mbClient(function(isReconnecting){
             }
         });
     });
-
 
     ///ASSIGN ROLE TO USER
     client.registerRoute('/user/assignRole', function(request){
@@ -78,40 +78,65 @@ var client = mbClient(function(isReconnecting){
             }
         });
 
+
     });
 
+    //Getting user by Token
+    client.registerRoute('/user/getByToken', function(request){
+            if(!request.payload.token)
+            {
+                return request.sendResponse(resultFactory.internalError(["token not presented"]));
+            }
 
+            db.query('select userId from token where token=:token and vaidThru>:vaidThru',{
+                params: {
+                    token: request.payload.token,
+                    vaidThru: moment().format('YYYY-MM-DD HH:mm:ss')
+                },
+                limit: 1
+                })
+                .then(function (results) {
+                        if(results.length>0){
 
+                            db.query('select @rid, userName, in(\'role_to_user\').roleName from @rid=:userId',{
+                                params: {
+                                    userId: results[0]},
+                                limit: 1
+                            }).then(function (users) {
 
+                                if(users.length>0) {
+                                    return request.sendResponse(resultFactory.success(users[0]));
+                                } else{
+                                    return request.sendResponse(resultFactory.success(null));
+                                }
+                            });
 
+                        }
+                    else{
+                            return request.sendResponse(resultFactory.success(null));
+                        }
+                });
+        });
 
+    ///INSERT NEW TOKEN
+    client.registerRoute('/token/create', function(request) {
+        if (!request.payload.token || !request.payload.userId) {
+            return request.sendResponse(resultFactory.internalError(["token or userId not presented"]));
+        }
 
+        var newToken = tokenModel.create();
+        newToken.update(request.payload);
 
+        db.insert().into('token').set(newToken.attrs).one()
+            .then(function (token) {
+                request.sendResponse(resultFactory.success(token['token']));
+            });
+    });
 
+    ///GET USER LIST
+    client.registerRoute('/user/getAll', function(request){
 
-    //
-    //db.update("user").set({password: 'changed'}).where({userName: 'admin'}).scalar()
-    //    .then(function (total) {
-    //        console.log('updated', total, 'users');
-    //    });
-
-
-
-
-    //newUser.rid("#12:45");
-    //    //newUser.userName("привет!!!");
-    //
-    //    console.log(newUser.toJSON());
-    //
-    //    newUser.validate().then(function() {
-    //        if (newUser.isValid) {
-    //            //validated, perform business logic
-    //        } else {
-    //            //validation failed, dump validation errors to the console
-    //            console.log(newUser.errors);
-    //        }
-    //});
-
+    });
 
     client.registerService();
 
