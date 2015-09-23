@@ -18,8 +18,8 @@
   "homepage": "https://github.com/DevirPlatform/BillingController#readme",
   "dependencies": {
     "async": "^1.4.2",
-    "devir-mbclient": "0.0.1",
-    "devir-mbserver": "0.0.2",
+    "devir-mbclient": "0.0.3",
+    "devir-mbserver": "0.0.5",
     "moment": "^2.10.6",
     "mongoose": "^4.1.7",
     "mongoose-deep-populate": "^2.0.1",
