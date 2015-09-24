@@ -157,6 +157,36 @@ var client = mbClient(function(isReconnecting){
         });
     });
 
+    client.registerRoute('/test/test', function(request){
+       var i=0;
+        while(i<1000*1000){
+
+            var newRole = roleModel.create();
+            newRole.roleName("Administrator"+i)
+
+
+
+        db.create('VERTEX', 'role')
+            .set(newRole)
+            .one()
+            .then(function (vertex) {
+
+                var newLink = linkModel.create();
+                db.create('EDGE', 'role_to_user')
+                    .from(vertex["@rid"])
+                    .to("#12:49")
+                    .set(newLink.attrs)
+                    .one()
+                    .then(function (edge) {
+
+                    });
+
+                console.log(i);
+            });
+            i++;
+        }
+    });
+
 
     client.registerService();
 
