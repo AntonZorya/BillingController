@@ -4,10 +4,10 @@
 module.exports = function (sql, params) {
     if (params)
         params.forEach(function (item) {
-            sql = sql.replace(":" + item.key, itemValueBuilder(item.value, true));
-            sql = sql.replace("@" + item.key, itemValueBuilder(item.value, false));
+            sql = sql.replace(new RegExp(":" + item.key, 'g'), itemValueBuilder(item.value, true));
+            sql = sql.replace(new RegExp("@" + item.key, 'g'), itemValueBuilder(item.value, false));
         });
-
+    console.log(sql);
     return sql;
 };
 
