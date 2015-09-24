@@ -83,13 +83,13 @@ var client = mbClient(function(isReconnecting) {
     //            }
     //})
 
-
-    //client.sendRequest('/test/test', {}, function(err, data){
-    //    if(err) console.log(err);
-    //    else {
-    //        console.log(data);
-    //    }
-    //})
+console.log("tut");
+    client.sendRequest('/test/test', {}, function(err, data){
+        if(err) console.log(err);
+        else {
+            console.log(data);
+        }
+    })
 
 
 

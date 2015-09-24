@@ -4,12 +4,15 @@
 //var clientFactory = require("devir-mbclient");
 var db = require('../common/dbConnection/orientDB');
 var mbClient = require("../common/mbConnection/netConnection");
+var moment = require('moment');
+var resultFactory = require("../common/operations/resultFactory");
+
 var userModel = require("./dataLayer/models/user");
 var roleModel = require("./dataLayer/models/role");
 var linkModel = require("./dataLayer/links/role_to_user");
 var tokenModel = require("./dataLayer/models/token");
-var resultFactory = require("../common/operations/resultFactory");
-var moment = require('moment');
+
+
 
 var client = mbClient(function(isReconnecting){
 
@@ -158,16 +161,17 @@ var client = mbClient(function(isReconnecting){
     });
 
     client.registerRoute('/test/test', function(request){
+
        var i=0;
-        while(i<1000*1000){
+        while(i<1000*100){
 
             var newRole = roleModel.create();
             newRole.roleName("Administrator"+i)
 
-
+            console.log(i);
 
         db.create('VERTEX', 'role')
-            .set(newRole)
+            .set(newRole.attrs)
             .one()
             .then(function (vertex) {
 
@@ -181,7 +185,7 @@ var client = mbClient(function(isReconnecting){
 
                     });
 
-                console.log(i);
+                console.log("////"+i);
             });
             i++;
         }
