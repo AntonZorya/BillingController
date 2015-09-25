@@ -1,59 +1,53 @@
-var clientFactory = require("devir-mbclient");
-var OrientDB = require('orientjs');
+var db = require('../common/dbConnection/orientDB');
+var mbClient = require("../common/mbConnection/netConnection");
+var resultFactory = require("../common/operations/resultFactory");
+var sqlBuilder = require("../common/sql/sqlBuilder");
 
-var orientServer = OrientDB({
-    host: '192.168.66.10',
-    port: 2424,
-    username: 'root',
-    password: 'spear39'
-});
+var addressModel = require("./dataLayer/models/address");
+var addressType = require("./dataLayer/models/addressType");
 
-var db = orientServer.use('Addresses');
-
-var client = new clientFactory.core(clientFactory.netConnector, "localhost", "9009", function(isReconecting){
-
-    console.log("Подключение установлено");
+var client = mbClient(function (isReconnecting) {
 
     //Получение дочерних адресных типов по PARENTID
     client.registerRoute("/address/getAddressTypeByParentId", function(request){
         if(!request.payload.parentId){
-            db.query("select from AdressType where out_AddressTypeRuleEdge is null", {}).then(function(response){
-                request.sendResponse({operationResult: 0, result: response});
+            db.query("select from addressType where out_addressType_to_addressType is null", {}).then(function(response){
+                request.sendResponse(resultFactory.success(response));
             });
         }
         else if(request.payload.parentId){
-            db.query("select from (TRAVERSE in('AddressTypeRuleEdge') FROM "+request.payload.parentId+" while $depth<2) where $depth=1", {}).then(function(response){
-                request.sendResponse({operationResult: 0, result: response});
+            db.query(sqlBuilder("select from (TRAVERSE in('addressType_to_addressType') FROM @parentId while $depth<2) where $depth=1", [{key:"parentId", value:request.payload.parentId}])).then(function(response){
+                request.sendResponse(resultFactory.success(response));
             });
         }
         else{
-            request.sendResponse({operationResult: 2, result: "parentId not found"});
+            request.sendResponse(resultFactory.internalError(["parentId not found"]));
         }
-        
+
     });
-    
+
     //Получение дочерних адресных элементов по PARENTID & TYPEID
     client.registerRoute("/address/getAddressByParentId", function(request){
         if(!request.payload.parentId || !request.payload.typeId){
-            db.query("select from Address where out_AddressEdge is null", {}).then(function(response){
-                request.sendResponse({operationResult: 0, result: response});
+            db.query("select from address where out_address_to_address is null", {}).then(function(response){
+                request.sendResponse(resultFactory.success(response));
             });
         }
         else if(request.payload.parentId != null && request.payload.typeId != null){
             //select @rid, name, oldName, out('AddressTypeEdge').@rid[0] from (TRAVERSE in('AddressEdge') FROM #12:0 while $depth<2) where $depth=1 and out('AddressTypeEdge').@rid[0]=#13:2
-            db.query("select from (TRAVERSE in('AddressEdge') FROM "+request.payload.parentId+" while $depth<2) where $depth=1 and out('AddressTypeEdge').@rid[0]="+request.payload.typeId, {}).then(function(response){
-                request.sendResponse({operationResult: 0, result: response});
+            db.query(sqlBuilder("select from (TRAVERSE in('address_to_address') FROM @parentId while $depth<2) where $depth=1 and out('address_to_addressType').@rid[0]=@typeId", [{key:"parentId", value:request.payload.parentId},{key:"typeId", value:request.payload.typeId}])).then(function(response){
+                request.sendResponse(resultFactory.success(response));
             });
         }
         else if(request.payload.typeId != null){
-            db.query("select from address where out('AddressTypeEdge').@rid[0]="+request.payload.typeId, {}).then(function(response){
-                request.sendResponse({operationResult: 0, result: response});
+            db.query(sqlBuilder("select from address where out('address_to_addressType').@rid[0]=@typeId", [{key:"typeId", value:request.payload.typeId}])).then(function(response){
+                request.sendResponse(resultFactory.success(response));
             });
         }
         else{
-            request.sendResponse({operationResult: 2, result: "parentId not found"});
+            request.sendResponse(resultFactory.internalError(["parentId not found"]));
         }
-        
+
     });
 
     client.registerRoute("/address/getAllByParentId", function(request) {
@@ -75,9 +69,6 @@ var client = new clientFactory.core(clientFactory.netConnector, "localhost", "90
             request.sendResponse({operationResult: 0, result: addrLine});
         });
     });
-
-
-
 
     client.registerService();
 
