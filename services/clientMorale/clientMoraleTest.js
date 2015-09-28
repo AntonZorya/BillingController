@@ -40,6 +40,10 @@ var client = mbClient(function (isReconnecting) {
 
 
 
+    db.query(' select organizationName, IINBIN, in("pipline_to_client") from (traverse in("pipline_to_client") from #17:6825) where $depth<1', {}).then(function(result){
+        console.log(result);
+    });
+
     client.sendRequest("/clientMorale/searchByKey", {searchKey:'01',period:201509}, function (err, data) {
         if (err) console.log(err);
         else console.log(data);

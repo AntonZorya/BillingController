@@ -1,27 +1,15 @@
 /**
  * Created by vaio on 25.09.2015.
  */
-var modelCreator = require("../../../common/models/modelCreator");
-module.exports = modelCreator("address", [
-    {
-        name: "name",
-        properties: {
-            validations: {
-                presence: {
-                    message: '#name is required!'
-                }
-            }
-        }
-    },
-    {
-        name: "oldName",
-        properties: {
-            validations: {
-                presence: {
-                    message: '#oldName is required!'
-                }
-            }
-        }
-    }
+var ModelBase = require('../../../common/mongoose/modelBase');
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var _ = require('underscore');
 
-]);
+
+exports.definition = _.extend({
+    name: {type: String, required: "#name required"},
+    oldName: {type: String},
+    parentId: {type: Schema.Types.ObjectId, ref: 'Address'},
+    addressTypeId: {type: Schema.Types.ObjectId, ref: 'AddressType', required: true}
+}, ModelBase);
