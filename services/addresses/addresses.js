@@ -62,8 +62,10 @@ var client = mbClient(function (isReconnecting) {
 
     //GET ADDRESSTYPE CHILDREN
     client.registerRoute("/addressType/getChildList", function (request) {
-        if (!request.payload) {
-            addressTypeCollection.find({ $and:[{$or:[ {parentIdList: { $exists: false }}, {parentIdList: {$size: 0}} ]},{isDeleted:false}] }, function(err, addressTypes){
+        if (!request.payload.id) {
+            addressTypeCollection.find({
+                $and:[{$or:[ {parentIdList: { $exists: false }}, {parentIdList: {$size: 0}} ]},{isDeleted:false}]
+            }, function(err, addressTypes){
                 if (err) return request.sendResponse(resultFactory.buildError(err));
                 return request.sendResponse(resultFactory.success(addressTypes));
             });
@@ -86,19 +88,68 @@ var client = mbClient(function (isReconnecting) {
             return request.sendResponse(resultFactory.internalError(["#not enough arguments"]));
         }
         else if(request.payload.parentId && request.payload.typeId){
-            addressCollection.find({parentId:request.payload.parentId, addressTypeId:request.payload.typeId, isDeleted:false }, function(err, addresses){
+            addressCollection.find({
+                parentId:request.payload.parentId,
+                addressTypeId:request.payload.typeId,
+                isDeleted:false
+            }, function(err, addresses){
                 if (err) return request.sendResponse(resultFactory.buildError(err));
                 request.sendResponse(resultFactory.success(addresses));
             });
         }
         else if (request.payload.typeId){
-            addressCollection.find({isDeleted:false, addressTypeId:request.payload.typeId, parentId: { $exists: false } }, function(err, addresses){
+            addressCollection.find({
+                isDeleted:false,
+                addressTypeId:request.payload.typeId,
+                parentId: { $exists: false }
+            }, function(err, addresses){
                 if (err) return request.sendResponse(resultFactory.buildError(err));
                 request.sendResponse(resultFactory.success(addresses));
             });
         }
         else{
             request.sendResponse(resultFactory.internalError(["#not enough arguments"]));
+        }
+    });
+
+    client.registerRoute("/address/collectAllParents", function(request){
+        if(request.payload && request.payload.id){
+            //todo
+            var addressTypeItems = [];
+            var addressItems = [];
+            var f2 = function(id, finish){
+                addressTypeCollection.findById(id, {isDeleted: false}, function(err, addressType){
+                    if (err) return request.sendResponse(resultFactory.buildError(err));
+                    if (addressType == null) return request.sendResponse(resultFactory.internalError(["#address not found"]));
+                    addressTypeItems.unshift(addressType);
+                    if(finish)
+                        request.sendResponse(resultFactory.success({addresses:addressItems, addressTypes:addressTypeItems}));
+
+                });
+            };
+            var f = function(id){
+                addressCollection.findById(id, {isDeleted: false}, function (err, address) {
+                    if (err) return request.sendResponse(resultFactory.buildError(err));
+                    if (address == null) return request.sendResponse(resultFactory.internalError(["#address not found"]));
+                    addressItems.unshift(address);
+                    if(address.parentId){
+                        f(address.parentId);
+                    }
+                    if(address.addressTypeId){
+                        if(address.parentId)
+                            f2(address.addressTypeId);
+                        else
+                            f2(address.addressTypeId, true);
+                    }
+                    //if(!address.parentId){
+                    //    request.sendResponse(resultFactory.success(addresses));
+                    //}
+                });
+            };
+            f(request.payload.id);
+        }
+        else{
+            return request.sendResponse(resultFactory.internalError(["#not enough arguments"]));
         }
     });
 
