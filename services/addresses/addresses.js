@@ -101,7 +101,7 @@ var client = mbClient(function (isReconnecting) {
             addressCollection.find({
                 isDeleted:false,
                 addressTypeId:request.payload.typeId,
-                parentId: { $exists: false }
+                $or: [{parentId: { $exists: false }}, {parentId: null}]
             }, function(err, addresses){
                 if (err) return request.sendResponse(resultFactory.buildError(err));
                 request.sendResponse(resultFactory.success(addresses));
