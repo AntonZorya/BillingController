@@ -24,12 +24,14 @@ var client = mbClient(function(isReconnecting){
         newUser.validate().then(function() {
             if(newUser.isValid) {
 
-                db.create('VERTEX', 'user')
-                    .set(newUser.attrs)
-                    .one()
-                    .then(function (vertex) {
-                        request.sendResponse(resultFactory.success(vertex['@rid']));
-                    });
+                 db.insert('users', newUser, function(err,data){
+
+                     db.findAll('users',{}, function(){
+
+                     }).dereference('roleId').dereference('organizationId');
+
+                 });
+
             }else{
                 request.sendResponse(resultFactory.validationError(newUser.errors));
             }
