@@ -99,7 +99,7 @@ var client = mbClient(function (isRec) {
                 sum: waterSum + canalSum,
                 period: period,
                 //?????
-                date: moment()
+                date: moment().toDate()
             };
 
             client.sendRequest('/jur/balances/create', balance, function(err, data) {
@@ -123,7 +123,7 @@ var client = mbClient(function (isRec) {
                 shortageSum: 0, //??????? ??
                 period: period,
                 //?????
-                date: moment(),
+                date: moment().toDate(),
                 userId: userId,
                 calculationType: 2
             };

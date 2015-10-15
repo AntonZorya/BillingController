@@ -23,5 +23,7 @@ var client = mbClient(function(isRec) {
 
     });
 
+    client.registerService();
+
 
 });

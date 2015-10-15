@@ -1,21 +1,43 @@
 /**
  * Created by Alibek on 13.10.2015.
  */
-var MongoClient = require('mongodb').MongoClient,
-    assert = require("assert");
+
+var db;
+var assert = require("assert");
+var mongo = require('mongodb');
+var cfg =
+{
+    db: 'BillingControllerTest',
+    host: '192.168.66.27',
+    port: '27017',
+    opts:{
+        "auto_reconnect": true,
+        "safe": true
+    }
+}
 
 
-var MongoUrl = 'mongodb://192.168.66.27:27017/BillingControllerTest';
 
-var DB;
+module.exports.getDb = function() {
+    if (!db) {
+        db = new mongo.Db(cfg.db,
+            new mongo.Server(cfg.host, cfg.port, cfg.opts),
+            {native_parser: false, safe:true});
+        db.open(function() {});
+        return db;
+    }
+    return db;
+};
 
-MongoClient.connect(MongoUrl, function (err, db) {
-    assert.equal(null, err);
-    console.log('connect to mongodb');
-
-    DB = db;
 
 
-});
 
-module.exports = DB;
+
+
+
+
+
+
+
+
+

@@ -1,7 +1,7 @@
 /**
  * Created by Alibek on 12.10.2015.
  */
-var db = require('../common/dbConnection/mongo');
+var db = require('../common/dbConnection/mongo').getDb();
 var mbClient = require("../common/mbConnection/netConnection");
 var moment = require('moment');
 var resultFactory = require("../common/operations/resultFactory");
@@ -25,7 +25,7 @@ var client = mbClient(function (isReconnecting) {
         if (model.userId)
             model.userId = new ObjectID(model.userId);
         model.isDeleted = false;
-        model.createDateTime = moment();
+        model.createDateTime = moment().toDate();
 
 
         db.collection("balances").insertOne(model, function (err, data) {
