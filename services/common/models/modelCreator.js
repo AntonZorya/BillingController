@@ -10,6 +10,12 @@ module.exports = function(modelName, fields){
 
     fields.forEach(function(item){
        createdModel.attr(item.name, item.properties);
+            if(item.properties)
+            if(item.properties.isEmbeding){
+                createdModel.validator(item.name, function(hz, hz2, hz3, hz4){
+                    var hz = hz;
+                });
+            }
     });
 
     createdModel.attr("_id");
