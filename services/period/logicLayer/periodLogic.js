@@ -7,7 +7,8 @@ var moment = require('moment');
 var ObjectID = require('mongodb').ObjectID;
 var _ = require('underscore');
 var async = require('async');
-var mclient = mbClient(function(isRec) { });
+var mclient = mbClient(function (isRec) {
+});
 
 exports.getCurrentPeriod = function (done) {
 
@@ -66,11 +67,11 @@ exports.closePeriod = function (done) {
 
         period.isClosed = true;
         db.collection('periods').updateOne({_id: period._id}, period, function (err, data) {
-            if (err) console.log('error update period: ' + err);
+            if (err) console.log('error update period: ' + err.result);
         });
 
         db.collection('periods').insertOne(newPeriod, function (err, data) {
-            if (err) console.log('error insert new period: ' + err);
+            if (err) console.log('error insert new period: ' + err.result);
         });
 
         db.collection('clientjurs').find({period: period.period, isDeleted: false}).toArray(function (err, docs) {
@@ -83,27 +84,26 @@ exports.closePeriod = function (done) {
                     if (_.some(pipeline.counters, function (value, index, list) {
                             return value.isActive;
                         })) {
-                        pipeline.counters = _.without(pipeline.counters, _.find(pipeline.counters, function (counter) {
-                            return counter.isActive == false;
-                        }));
-                    }
-                    if (pipeline.sourceCounts == 2) {
-                        var payload = {
-                            pipeline: pipeline,
-                            clientId: newClient.clientId,
-                            period: newPeriod.period,
-                            tariffId: newClient.clientType.tariffId
-                        };
-
-                        mclient.sendRequest('/jur/calculations/byNormPipeline', payload, function (err, data) {
-                            if (err) return console.log('client - ' + newClient.clientId + '  error: ' + err);
-                            console.log('client - ' + newClient.clientId + '  calculatedByNorm');
+                        pipeline.counters = _.filter(pipeline.counters, function (counter) {
+                            return counter.isActive == true;
                         });
+                        var activeCounter = _.find(pipeline.counters, function(counter) { return counter.isActive == true;});
+                        if (activeCounter)
+                        {
+                            if (activeCounter.dateOfCurrentCounts)
+                            {
+                                activeCounter.dateOfLastCounts = activeCounter.dateOfCurrentCounts;
+                                activeCounter.lastCounts = activeCounter.currentCounts;
+                                activeCounter.dateOfCurrentCounts = null;
+                                activeCounter.currentCounts = null;
+                            }
+                        }
                     }
+
                 });
                 db.collection('clientjurs').insert(newClient, function (err, data) {
-                    if (err) return console.log('client ' + newClient.clientId + ': error add for new period: ' + err);
-                    console.log('client - ' + newClient.clientId + '  added for new period');
+                    if (err) return console.log('client ' + data.ops[0].clientId + ': error add for new period: ' + err.result);
+                    console.log('client - ' + data.ops[0].clientId + '  added for new period');
                 });
 
             });

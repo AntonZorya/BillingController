@@ -12,7 +12,13 @@ var client = mbClient(function (isRec) {
 
     client.registerRoute('/period/closePeriod', function (request) {
         periodLogic.closePeriod(function(){
-           request.sendResponse(resultFactory.success());
+            request.sendResponse(resultFactory.success());
+        });
+    });
+
+    client.registerRoute('/period/getCurrentPeriod', function (request) {
+        periodLogic.getCurrentPeriod(function(err, data){
+            request.sendResponse(resultFactory.success(data));
         });
     });
 
