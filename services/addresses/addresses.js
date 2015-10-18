@@ -112,9 +112,9 @@ var client = mbClient(function (isReconnecting) {
         }
     });
 
+    //GET 2 ARRAYS OF PARENTS
     client.registerRoute("/address/collectAllParents", function(request){
         if(request.payload && request.payload.id){
-            //todo
             var addressTypeItems = [];
             var addressItems = [];
             var f2 = function(id, finish){
