@@ -10,9 +10,9 @@ var ObjectID = require('mongodb').ObjectID;
 
 var client = mbClient(function(isRec) {
 
-    client.registerRoute('/jur/tariffs/getById', function(request) {
+    client.registerRoute('/fiz/tariffs/getById', function(request) {
 
-        db.collection('tariffs').find({_id: new ObjectID(request.payload.id)}).limit(1).toArray(function(err, data) {
+        db.collection('tarifffizs').find({_id: new ObjectID(request.payload.id)}).limit(1).toArray(function(err, data) {
            if (err) return request.sendResponse(resultFactory.internalError(err));
             if (data && data.length > 0)
                 return request.sendResponse(resultFactory.success( data[0]));

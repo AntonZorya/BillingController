@@ -13,7 +13,7 @@ var mclient = mbClient(function (isRec) {
 exports.getCurrentPeriod = function (done) {
 
 
-    var periods = db.collection('periods')
+    var periods = db.collection('periodsfiz')
         .find({isClosed: false}).sort({period: 1}).limit(1).toArray(
         function (err, periods) {
             if (periods && periods.length > 0) {
@@ -23,7 +23,7 @@ exports.getCurrentPeriod = function (done) {
                 var today = moment();
                 var year = today.year();
                 var month = today.month() + 1;
-                var period = year * 100 + month;
+                var period = year * 100 + month + 1;
                 var newPeriod = {
                     _id: new ObjectID(),
                     period: period,
@@ -37,7 +37,7 @@ exports.getCurrentPeriod = function (done) {
                     isDeleted: false,
                     createDateTime: new Date(new Date().toUTCString())
                 };
-                db.collection('periods').insert(newPeriod
+                db.collection('periodsfiz').insert(newPeriod
                     , function (err, data) {
                         if (err) return done(err);
                         return done(null, data.ops[0]);
@@ -50,7 +50,7 @@ exports.getCurrentPeriod = function (done) {
 }
 
 exports.closePeriod = function (done) {
-    console.log(moment().format('dd.MM.yyyy HH:mm') + ' close period begin');
+    console.log(moment().format('dd.MM.yy HH:mm') + ' close period begin');
     exports.getCurrentPeriod(function (err, period) {
         if (err) return done(err);
         var newPeriod = _.clone(period);
@@ -66,15 +66,15 @@ exports.closePeriod = function (done) {
         }
 
         period.isClosed = true;
-        db.collection('periods').updateOne({_id: period._id}, period, function (err, data) {
+        db.collection('periodsfiz').updateOne({_id: period._id}, period, function (err, data) {
             if (err) console.log('error update period: ' + err.result);
         });
 
-        db.collection('periods').insertOne(newPeriod, function (err, data) {
+        db.collection('periodsfiz').insertOne(newPeriod, function (err, data) {
             if (err) console.log('error insert new period: ' + err.result);
         });
 
-        db.collection('clientjurs').find({period: period.period, isDeleted: false}).toArray(function (err, docs) {
+        db.collection('clientfizs').find({period: period.period, isDeleted: false}).toArray(function (err, docs) {
             async.each(docs, function (client) {
                 var newClient = _.clone(client);
                 newClient._id = new ObjectID();
@@ -87,11 +87,11 @@ exports.closePeriod = function (done) {
                         pipeline.counters = _.filter(pipeline.counters, function (counter) {
                             return counter.isActive == true;
                         });
-                        var activeCounter = _.find(pipeline.counters, function(counter) { return counter.isActive == true;});
-                        if (activeCounter)
-                        {
-                            if (activeCounter.dateOfCurrentCounts)
-                            {
+                        var activeCounter = _.find(pipeline.counters, function (counter) {
+                            return counter.isActive == true;
+                        });
+                        if (activeCounter) {
+                            if (activeCounter.dateOfCurrentCounts) {
                                 activeCounter.dateOfLastCounts = activeCounter.dateOfCurrentCounts;
                                 activeCounter.lastCounts = activeCounter.currentCounts;
                                 activeCounter.dateOfCurrentCounts = null;
@@ -101,16 +101,29 @@ exports.closePeriod = function (done) {
                     }
 
                 });
-                db.collection('clientjurs').insert(newClient, function (err, data) {
+                db.collection('clientfizs').insert(newClient, function (err, data) {
                     if (err) return console.log('client ' + data.ops[0].clientId + ': error add for new period: ' + err.result);
+                    if (newClient.checkByNorm && newClient.norm && newClient.norm > 0) {
+                        mclient.sendRequest('/fiz/calculations/byNorm',
+                            {
+                                client: data.ops[0],
+                                period: newPeriod.period,
+                                tariffId: newClient.clientType.tariffId
+                            }, function (err, data) {
+                                if (err) return console.log('calculation add error: ' + err.result);
+                            });
+                    }
                     console.log('client - ' + data.ops[0].clientId + '  added for new period');
                 });
 
             });
-            console.log(moment().format('dd.MM.yyyy HH:mm') + ' close period finished');
-            done();
+
         });
-
-
+        console.log(moment().format('dd.MM.yyyy HH:mm') + ' close period finished');
+        done();
     });
+
+
 }
+
+

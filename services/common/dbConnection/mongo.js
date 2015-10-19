@@ -7,7 +7,7 @@ var assert = require("assert");
 var mongo = require('mongodb');
 var cfg =
 {
-    db: 'BillingController',
+    db: 'BillingControllerTest',
     host: '192.168.66.27',
     port: '27017',
     opts:{
