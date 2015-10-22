@@ -25,7 +25,7 @@ var client = mbClient(function (isReconnecting) {
 
     this.calculateAccrualByCounter = function(counterId, periodId)
     {
-        client.sendRequest("/counter",)
+        client.sendRequest("/counter")
     }
 
     client.registerService();

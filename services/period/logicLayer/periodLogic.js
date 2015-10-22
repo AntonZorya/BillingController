@@ -87,11 +87,11 @@ exports.closePeriod = function (done) {
                         pipeline.counters = _.filter(pipeline.counters, function (counter) {
                             return counter.isActive == true;
                         });
-                        var activeCounter = _.find(pipeline.counters, function(counter) { return counter.isActive == true;});
-                        if (activeCounter)
-                        {
-                            if (activeCounter.dateOfCurrentCounts)
-                            {
+                        var activeCounter = _.find(pipeline.counters, function (counter) {
+                            return counter.isActive == true;
+                        });
+                        if (activeCounter) {
+                            if (activeCounter.dateOfCurrentCounts) {
                                 activeCounter.dateOfLastCounts = activeCounter.dateOfCurrentCounts;
                                 activeCounter.lastCounts = activeCounter.currentCounts;
                                 activeCounter.dateOfCurrentCounts = null;
@@ -114,3 +114,10 @@ exports.closePeriod = function (done) {
 
     });
 }
+
+exports.getClosed = function (done) {
+    var periods = db.collection('periods')
+        .find({isClosed: true})
+        .sort({period: 1})
+        .toArray(done);
+};

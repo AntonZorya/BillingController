@@ -10,15 +10,25 @@ var periodLogic = require('./logicLayer/periodLogic');
 
 var client = mbClient(function (isRec) {
 
-    client.registerRoute('/jur/period/closePeriod', function (request) {
-        periodLogic.closePeriod(function(){
+    client.registerRoute('/jur/periods/closePeriod', function (request) {
+        periodLogic.closePeriod(function () {
             request.sendResponse(resultFactory.success());
         });
     });
 
-    client.registerRoute('/jur/period/getCurrentPeriod', function (request) {
-        periodLogic.getCurrentPeriod(function(err, data){
+    client.registerRoute('/jur/periods/getCurrent', function (request) {
+        periodLogic.getCurrentPeriod(function (err, data) {
             request.sendResponse(resultFactory.success(data));
+        });
+    });
+
+    client.registerRoute('/jur/periods/getClosed', function (request) {
+        periodLogic.getClosed(function (err, data) {
+            if (err) {
+                request.sendResponse(resultFactory.buildError(err));
+            } else {
+                request.sendResponse(resultFactory.success(data));
+            }
         });
     });
 
