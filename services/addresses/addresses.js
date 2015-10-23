@@ -101,7 +101,7 @@ var client = mbClient(function (isReconnecting) {
             addressCollection.find({
                 isDeleted:false,
                 addressTypeId:request.payload.typeId,
-                parentId: { $exists: false }
+                $or: [{parentId: { $exists: false }}, {parentId: null}]
             }, function(err, addresses){
                 if (err) return request.sendResponse(resultFactory.buildError(err));
                 request.sendResponse(resultFactory.success(addresses));
@@ -112,9 +112,9 @@ var client = mbClient(function (isReconnecting) {
         }
     });
 
+    //GET 2 ARRAYS OF PARENTS
     client.registerRoute("/address/collectAllParents", function(request){
         if(request.payload && request.payload.id){
-            //todo
             var addressTypeItems = [];
             var addressItems = [];
             var f2 = function(id, finish){

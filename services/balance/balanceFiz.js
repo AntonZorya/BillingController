@@ -1,0 +1,86 @@
+/**
+ * Created by Alibek on 12.10.2015.
+ */
+var db = require('../common/dbConnection/mongo').getDb();
+var mbClient = require("../common/mbConnection/netConnection");
+var moment = require('moment');
+var resultFactory = require("../common/operations/resultFactory");
+var ObjectID = require('mongodb').ObjectID;
+
+
+var client = mbClient(function (isReconnecting) {
+
+    client.registerRoute("/fiz/balance/create", function (request) {
+        var model = request.payload;
+        if (model._id)
+            model._id = new ObjectID(model._id);
+        else
+            model._id = new ObjectID();
+        if (model.clientId)
+            model.clientId = new ObjectID(model.clientId);
+        if (model.counterId)
+            model.counterId = new ObjectID(model.counterId);
+        if (model.balanceTypeId)
+            model.balanceTypeId = new ObjectID(model.balanceTypeId);
+        if (model.userId)
+            model.userId = new ObjectID(model.userId);
+        model.isDeleted = false;
+        model.createDateTime = moment().toDate();
+
+
+        db.collection("balancefizs").insertOne(model, function (err, data) {
+            if (err)
+                request.sendResponse(resultFactory.internalError(err));
+            else request.sendResponse(resultFactory.success(data));
+        });
+    });
+
+    client.registerRoute('/fiz/balance/getByPeriodAndClientId', function (request) {
+        db.collection('balancefizs').find({
+            clientId: new ObjectID(request.payload.clientId),
+            period: request.payload.period,
+            isDeleted: false
+        }).toArray(function (err, data) {
+            if (err) request.sendResponse(resultFactory.internalError(err));
+            else request.sendResponse(resultFactory.success(data));
+        });
+    });
+
+
+    client.registerRoute('/fiz/balance/getById', function (request) {
+        db.collection('balancefizs').find({_id: new ObjectID(request.payload.id)}).limit(1).toArray(function (err, data) {
+            if (err) request.sendResponce(resultFactory.internalError(err));
+            else {
+                var res = null;
+                if (data && data.length > 0)
+                    res = data[0];
+                request.sendResponse(resultFactory.success(res));
+
+            }
+        })
+    });
+
+    client.registerRoute('/fiz/balance/update', function (request) {
+        var model = request.payload;
+        if (model._id)
+            model._id = new ObjectID();
+        if (model.clientId)
+            model.clientId = new ObjectID(model.clientId);
+        if (model.counterId)
+            model.counterId = new ObjectID(model.counterId);
+        if (model.balanceTypeId)
+            model.balanceTypeId = new ObjectID(model.balanceTypeId);
+        if (model.userId)
+            model.userId = new ObjectID(model.userId);
+
+        db.collection('balancefizs').updateOne({_id: model._id}, model, {upsert: false}, function (err, data) {
+            if (err) request.sendResponce(resultFactory.internalError(err));
+            else request.sendResponce(resultFactory.success(data));
+        });
+
+
+    });
+
+    client.registerService();
+
+});

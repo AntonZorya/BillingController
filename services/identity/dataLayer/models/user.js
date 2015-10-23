@@ -10,8 +10,11 @@ module.exports = modelCreator("user", [{
                 message: '#userName is required!'
             }
         }
-    }},
-    { name: "password",
+    }
+},
+
+    {
+        name: "password",
         properties: {
             validations: {
                 presence: {
