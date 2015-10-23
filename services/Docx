@@ -1,0 +1,34 @@
+var mbClient = require("../common/mbConnection/netConnection");
+var resultFactory = require("../common/operations/resultFactory");
+var mongoose = require("../common/dbConnection/mongoDB");
+var fs=require('fs');
+var Docxtemplater=require('docxtemplater');
+
+
+    var client = mbClient(function (isReconnecting) {
+
+        client.registerRoute("/templater/templaterData", function (request) {
+            if (!request.payload) {
+                return request.sendResponse(resultFactory.internalError(["#nothing to save"]));
+            }
+            else {
+
+
+                    var doc = new Docxtemplater(request.payloads);
+                    doc.setData(request.payload);
+                    doc.render();
+                    var buf = doc.getZip()
+                        .generate({type:"nodebuffer"});
+                request.sendResponse(resultFactory.success({buf:buf}));
+
+                    //fs.writeFileSync(__dirname+"/output11.docx",buf);
+                    console.log("Record completed");
+
+                //exports.templateData=templateData;//Алгоритм записи данных
+
+            }
+        });
+
+        client.registerService();
+    });
+

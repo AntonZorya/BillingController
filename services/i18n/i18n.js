@@ -13,17 +13,6 @@ var client = mbClient(function(isReconnecting) {
     client.registerRoute("/i18n/getByLangCode", function(request){
 
 
-
-
-
-
-
-
-
-
-
-
-
         request.sendResponse(resultFactory.success({paramsFromClient: request.payload, text: "balbahgglbal"}));
     });
 
