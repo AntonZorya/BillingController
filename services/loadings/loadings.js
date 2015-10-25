@@ -96,60 +96,53 @@ var client = mbClient(function (isReconnecting) {
 
     //VALIDATE "CLIENT LOAD" ex:// Разбор воды из уличных колонок
     client.registerRoute("/loadings/clientLoad/validate", function (request) {
-        if (!request.payload) {
+        if (!request.payload || !(request.payload instanceof Array)) {
             return request.sendResponse(resultFactory.internalError(["#clientLoad not found"]));
         }
         else {
-            var clientLoadArrayReturn = [];
 
-            async.each(request.payload, function (clientLoad, callback) {
-                if (!clientLoad.negotiableLoad) {
-                    return callback(resultFactory.internalError(["#clientLoad.negotiableLoad not found"]));
-                }
-                if (!clientLoad.quantity) {
-                    return callback(resultFactory.internalError(["#clientLoad.quantity not found"]));
-                }
-                if (!clientLoad.waterPercent) {
-                    return callback(resultFactory.internalError(["#clientLoad.waterPercent not found"]));
-                }
-                if (!clientLoad.canalPercent) {
-                    return callback(resultFactory.internalError(["#clientLoad.canalPercent not found"]));
-                }
-                if(typeof clientLoad.negotiableLoad == "object"){
-                    clientLoad.negotiableLoad = clientLoad.negotiableLoad._id;
-                }
-                negotiableLoadCollection.findById(clientLoad.negotiableLoad, {isDeleted: false}, function (err, negotiableLoad) {
-                    if (err) return callback(resultFactory.buildError(err));
-                    else if (!negotiableLoad || negotiableLoad == null) return callback(resultFactory.internalError(["#negotiableLoad not found"]));
-                    else {
-                        clientLoad.negotiableLoad = negotiableLoad;
-                        clientLoad.totalWaterLitersPerDay = 0;
-                        clientLoad.totalCanalLitersPerDay = 0;
-                        validator("ClientLoad", clientLoadDef, clientLoad, function (result) {
-                            if (result.operationResult == 0) {
-                                clientLoad.totalWaterLitersPerDay =
-                                    clientLoad.negotiableLoad.litersPerDay * clientLoad.quantity * clientLoad.waterPercent / 100;
-                                clientLoad.totalCanalLitersPerDay =
-                                    clientLoad.negotiableLoad.litersPerDay * clientLoad.quantity * clientLoad.canalPercent / 100;
-                                var model = clientLoadCollection(clientLoad);
-                                clientLoadArrayReturn.push(model);
-                                return callback();
+            async.each(request.payload, function(clientLoadItem, callback){
+
+                clientLoadItem.totalWaterLitersPerDay = 0;
+                clientLoadItem.totalCanalLitersPerDay = 0;
+
+                if(clientLoadItem.negotiableLoad){
+                    negotiableLoadCollection.findById(clientLoadItem.negotiableLoad, {isDeleted: false}, function (err, negotiableLoad) {
+                        if(!err && negotiableLoad && negotiableLoad!=null){
+                            clientLoadItem.negotiableLoad = negotiableLoad._doc;
+                            clientLoadItem.negotiableLoad.litersPerDay = parseInt(clientLoadItem.negotiableLoad.litersPerDay);
+                            clientLoadItem.quantity = parseInt(clientLoadItem.quantity);
+                            clientLoadItem.waterPercent = parseInt(clientLoadItem.waterPercent);
+                            clientLoadItem.canalPercent = parseInt(clientLoadItem.canalPercent);
+                            if(typeof clientLoadItem.negotiableLoad.litersPerDay == "number" && typeof clientLoadItem.quantity == "number" && typeof clientLoadItem.waterPercent == "number"){
+                                clientLoadItem.totalWaterLitersPerDay =
+                                    clientLoadItem.negotiableLoad.litersPerDay * clientLoadItem.quantity * clientLoadItem.waterPercent / 100;
                             }
-                            else {
-                                return callback(result);
+                            if(typeof clientLoadItem.negotiableLoad.litersPerDay == "number" && typeof clientLoadItem.quantity == "number" && typeof clientLoadItem.canalPercent == "number"){
+                                clientLoadItem.totalCanalLitersPerDay =
+                                    clientLoadItem.negotiableLoad.litersPerDay * clientLoadItem.quantity * clientLoadItem.canalPercent / 100;
                             }
-                        });
+                        }
+                        return callback();
+                    });
+                }
 
-
-                    }
-                });
-
+                else return callback();
 
             }, function (err) {
+                //console.log(request.payload);
                 if (err) {
-                    return request.sendResponse(err);
+                    return request.sendResponse(resultFactory.internalError([err]));
                 } else {
-                    return request.sendResponse(resultFactory.success(clientLoadArrayReturn));
+                    validator("ClientLoad", clientLoadDef, {"clientLoadsArray":request.payload}, function (result) {
+                        //console.log(result);
+                        if (result.operationResult == 0) {
+                            return request.sendResponse(resultFactory.success(request.payload));
+                        }
+                        else {
+                            return request.sendResponse(result);
+                        }
+                    });
                 }
             });
 
