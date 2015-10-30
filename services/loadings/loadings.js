@@ -137,7 +137,21 @@ var client = mbClient(function (isReconnecting) {
                     validator("ClientLoad", clientLoadDef, {"clientLoadsArray":request.payload}, function (result) {
                         //console.log(result);
                         if (result.operationResult == 0) {
-                            return request.sendResponse(resultFactory.success(request.payload));
+
+                            async.reduce(request.payload, {waterTotalNormPerDay:0,canalTotalNormPerDay:0}, function(memo, item, callback){
+                                // pointless async:
+                                process.nextTick(function(){
+                                    if(item.totalWaterLitersPerDay && item.totalCanalLitersPerDay){
+                                        memo.waterTotalNormPerDay = memo.waterTotalNormPerDay + item.totalWaterLitersPerDay;
+                                        memo.canalTotalNormPerDay = memo.canalTotalNormPerDay + item.totalCanalLitersPerDay;
+                                    }
+                                    callback(null, memo);
+                                });
+                            }, function(err, result){
+                                return request.sendResponse(resultFactory.success({clientLoads:request.payload, totals:result}));
+                            });
+
+
                         }
                         else {
                             return request.sendResponse(result);
