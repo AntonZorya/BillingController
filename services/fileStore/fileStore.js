@@ -4,37 +4,45 @@ var resultFactory = require("../common/operations/resultFactory");
 var db = require('../common/dbConnection/mongo').getDb();
 var mongo = require('../common/dbConnection/mongo').mongo;
 
-var Grid = require('gridfs-stream');
+var Grid = require('gridfs');
 var gfs = Grid(db, mongo);
-var fs = require('fs');
+
+var docxTemplater = require('docxtemplater');
+var unoconv = require('unoconv2');
 
 var mbClient = mbClientConn(function (isReconnecting) {
 
     mbClient.registerRoute('/files/docx/toFilledPDF', function (request) {
         var templateId = request.payload.templateId;
         var objToFill = request.payload.objToFill;
-
-        var bufArr = [];
-        var bufTemplate;
-
-        var gfsReadStream = gfs.createReadStream({
+        var fileName = request.payload.fileName;
+        gfs.readFile({
             _id: templateId
+        }, function (error, bufTemplate) {
+            if (error) {
+                console.error(error);
+                request.sendResponse(resultFactory.buildError(error));
+            } else {
+                var docToFill = new docxTemplater(bufTemplate);
+                docToFill.setData(objToFill);
+                docToFill.render();
+
+                var resultBuffer = docToFill.getZip().generate({type: 'nodebuffer'});
+
+
+
+                gfs.writeFile({
+                    filename: fileName
+                }, resultBuffer, function (error, data) {
+                    if (error) {
+                        request.sendResponse(resultFactory.buildError(error));
+                    } else {
+                        request.sendResponse(resultFactory.success(data._id));
+                    }
+                });
+            }
         });
 
-        gfsReadStream.on('error', function (error) {
-            console.error(error);
-            mbClient.sendResponse(resultFactory.buildError(error));
-        });
-
-        gfsReadStream.on('data', function (data) {
-            bufArr.push(data);
-        });
-
-        gfsReadStream.on('end', function () {
-            bufTemplate = Buffer.concat(bufArr);
-            fs.writeFileSync('template.docx', bufTemplate);
-            request.sendResponse(resultFactory.success('Ok'));
-        });
     });
 
     mbClient.registerService();

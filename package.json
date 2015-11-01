@@ -20,8 +20,8 @@
     "async": "^1.4.2",
     "devir-mbclient": "0.0.3",
     "devir-mbserver": "0.0.5",
-    "docxtemplater": "",
-    "gridfs-stream": "^1.1.1",
+    "docxtemplater": "^1.0.8",
+    "gridfs": "^1.0.0",
     "moment": "^2.10.6",
     "mongodb": "^2.0.46",
     "mongoose": "^4.1.7",
@@ -29,6 +29,7 @@
     "mongoose-id-validator": "^0.1.8",
     "nodejs-model": "^0.1.6",
     "orientjs": "^2.0.0",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "unoconv2": "^1.0.0"
   }
 }
