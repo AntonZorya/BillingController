@@ -7,14 +7,15 @@ var assert = require("assert");
 var mongo = require('mongodb');
 var cfg =
 {
-    db: 'BillingController',
+    db: 'ASABilling',
     host: '192.168.66.27',
+    //host: 'localhost',
     port: '27017',
     opts:{
         "auto_reconnect": true,
         "safe": true
     }
-}
+};
 
 
 
