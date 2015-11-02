@@ -50,6 +50,11 @@ var mbClient = mbClientConn(function (isReconnecting) {
                                     }
                                 });
                             }
+                            fs.unlink('./temp/' + fileName + '.docx', function (error) {
+                                if (error) {
+                                    console.error(error);
+                                }
+                            });
                         });
                     }
                 });
