@@ -86,9 +86,10 @@ var unoconv=require('unoconv2');
                 //exports.templateData=templateData;//Алгоритм записи данных
 
             }
-        });
+        }
 
         client.registerService();
+    });
     });
 
 

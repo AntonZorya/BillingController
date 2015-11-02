@@ -13,7 +13,7 @@ var client = mbClientConn(function (isReconecting) {
             description: 'nonPriced',
             price: '0'
         },
-        fileName: 'filledTemplate.docx'
+        fileName: 'filledTemplate'
     }, function (err, data) {
         if (err) {
             console.error(err);

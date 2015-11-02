@@ -30,18 +30,18 @@ var mbClient = mbClientConn(function (isReconnecting) {
 
                 var resultBuffer = docToFill.getZip().generate({type: 'nodebuffer'});
 
-                fs.writeFile('./temp/' + fileName, resultBuffer, {}, function (error, data) {
+                fs.writeFile('./temp/' + fileName+'.docx', resultBuffer, {}, function (error, data) {
                     if (error) {
                         console.error(error);
                         request.sendResponse(resultFactory.buildError(error));
                     } else {
-                        unoconv.convert('./temp' + fileName, 'pdf', function (error, result) {
+                        unoconv.convert('./temp/' + fileName+'.docx', 'pdf', function (error, result) {
                             if (error) {
                                 console.error(error);
                                 request.sendResponse(resultFactory.buildError(error));
                             } else {
                                 gfs.writeFile({
-                                    filename: fileName
+                                    filename: fileName+'.pdf'
                                 }, result, function (error, data) {
                                     if (error) {
                                         request.sendResponse(resultFactory.buildError(error));
