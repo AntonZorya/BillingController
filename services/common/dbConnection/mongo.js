@@ -9,21 +9,24 @@ var cfg =
 {
     db: 'BillingController',
     host: '192.168.66.27',
+    //host: 'localhost',
     port: '27017',
-    opts:{
+    opts: {
         "auto_reconnect": true,
         "safe": true
     }
-}
+};
 
+module.exports.mongo = mongo;
 
-
-module.exports.getDb = function() {
+module.exports.getDb = function () {
     if (!db) {
-        db = new mongo.Db(cfg.db,
+        db = new mongo.Db(
+            cfg.db,
             new mongo.Server(cfg.host, cfg.port, cfg.opts),
-            {native_parser: false, safe:true});
-        db.open(function() {});
+            {native_parser: false, safe: true});
+        db.open(function () {
+        });
         return db;
     }
     return db;
