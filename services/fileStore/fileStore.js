@@ -9,6 +9,7 @@ var gfs = Grid(db, mongo);
 
 var docxTemplater = require('docxtemplater');
 var unoconv = require('unoconv2');
+var fs = require('fs');
 
 var mbClient = mbClientConn(function (isReconnecting) {
 
@@ -29,15 +30,27 @@ var mbClient = mbClientConn(function (isReconnecting) {
 
                 var resultBuffer = docToFill.getZip().generate({type: 'nodebuffer'});
 
-
-
-                gfs.writeFile({
-                    filename: fileName
-                }, resultBuffer, function (error, data) {
+                fs.writeFile('./temp/' + fileName, resultBuffer, {}, function (error, data) {
                     if (error) {
+                        console.error(error);
                         request.sendResponse(resultFactory.buildError(error));
                     } else {
-                        request.sendResponse(resultFactory.success(data._id));
+                        unoconv.convert('./temp' + fileName, 'pdf', function (error, result) {
+                            if (error) {
+                                console.error(error);
+                                request.sendResponse(resultFactory.buildError(error));
+                            } else {
+                                gfs.writeFile({
+                                    filename: fileName
+                                }, result, function (error, data) {
+                                    if (error) {
+                                        request.sendResponse(resultFactory.buildError(error));
+                                    } else {
+                                        request.sendResponse(resultFactory.success(data._id));
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }
