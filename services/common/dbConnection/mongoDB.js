@@ -3,5 +3,8 @@
  */
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://192.168.66.27/BillingController');
+//mongoose.connect('mongodb://localhost/ASABilling');
+
+//var conn = mongoose.connection[0];
 
 module.exports = mongoose;

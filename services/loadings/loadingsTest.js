@@ -24,13 +24,13 @@ var client = new clientFactory.core(clientFactory.netConnector, "localhost", "90
 
     client.sendRequest("/loadings/clientLoad/validate",
         [
-            {"negotiableLoad":"5625daccd43f1d4813f92f1a","quantity":1,"waterPercent":100,"canalPercent":100},
-            {"negotiableLoad":"5625dcaad43f1d4813f92f24","quantity":2,"waterPercent":100,"canalPercent":100},
-            {"negotiableLoad":"5625dd20d43f1d4813f92f26","quantity":3,"waterPercent":100,"canalPercent":100},
-            {"negotiableLoad":"5625dd64d43f1d4813f92f28","quantity":4,"waterPercent":100,"canalPercent":100},
-            {"negotiableLoad":"5625dd91d43f1d4813f92f2a","quantity":5,"waterPercent":100,"canalPercent":100},
-            {"negotiableLoad":"5625ddf0d43f1d4813f92f2c","quantity":6,"waterPercent":100,"canalPercent":100},
-            {"negotiableLoad":"5625de47d43f1d4813f92f2e","quantity":7,"waterPercent":100,"canalPercent":100}
+            {"negotiableLoad":"5625daccd43f1d4813f92f1a","quantity":1,"waterPercent":200,"canalPercent":100},
+            {"negotiableLoad":"5625dcaad43f1d4813f92f24","quantity":2,"waterPercent":200,"canalPercent":100},
+            {"negotiableLoad":"5625dd20d43f1d4813f92f26","quantity":3,"waterPercent":200,"canalPercent":100},
+            {"negotiableLoad":"5625dd64d43f1d4813f92f28","quantity":4,"waterPercent":200,"canalPercent":100},
+            {"negotiableLoad":"5625dd91d43f1d4813f92f2a","quantity":5,"waterPercent":200,"canalPercent":100},
+            {"negotiableLoad":"5625ddf0d43f1d4813f92f2c","quantity":6,"waterPercent":200,"canalPercent":100},
+            {"negotiableLoad":"5625de47d43f1d4813f92f2e","quantity":7,"waterPercent":200,"canalPercent":100}
         ]
         , function (err, data) {
         if (err) {
