@@ -17,6 +17,7 @@ var mbClient = mbClientConn(function (isReconnecting) {
         var templateId = request.payload.templateId;
         var objToFill = request.payload.objToFill;
         var fileName = request.payload.fileName;
+        var clientIdByPeriod = request.payload.clientIdByPeriod;
         gfs.readFile({
             _id: templateId
         }, function (error, bufTemplate) {
@@ -30,18 +31,18 @@ var mbClient = mbClientConn(function (isReconnecting) {
 
                 var resultBuffer = docToFill.getZip().generate({type: 'nodebuffer'});
 
-                fs.writeFile('./temp/' + fileName+'.docx', resultBuffer, {}, function (error, data) {
+                fs.writeFile('./temp/' + fileName + '.docx', resultBuffer, {}, function (error, data) {
                     if (error) {
                         console.error(error);
                         request.sendResponse(resultFactory.buildError(error));
                     } else {
-                        unoconv.convert('./temp/' + fileName+'.docx', 'pdf', function (error, result) {
+                        unoconv.convert('./temp/' + clientIdByPeriod + '.docx', 'pdf', function (error, result) {
                             if (error) {
                                 console.error(error);
                                 request.sendResponse(resultFactory.buildError(error));
                             } else {
                                 gfs.writeFile({
-                                    filename: fileName+'.pdf'
+                                    filename: fileName + '.pdf'
                                 }, result, function (error, data) {
                                     if (error) {
                                         request.sendResponse(resultFactory.buildError(error));
@@ -50,7 +51,7 @@ var mbClient = mbClientConn(function (isReconnecting) {
                                     }
                                 });
                             }
-                            fs.unlink('./temp/' + fileName + '.docx', function (error) {
+                            fs.unlink('./temp/' + clientIdByPeriod + '.docx', function (error) {
                                 if (error) {
                                     console.error(error);
                                 }
