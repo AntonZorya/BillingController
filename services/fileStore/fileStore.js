@@ -36,7 +36,7 @@ var mbClient = mbClientConn(function (isReconnecting) {
                         console.error(error);
                         request.sendResponse(resultFactory.buildError(error));
                     } else {
-                        unoconv.convert(__dirname + '/temp/' + fileName + '.docx', 'pdf', function (error, result) {
+                        unoconv.convert('./temp/' + fileName + '.docx', 'pdf', function (error, result) {
                             if (error) {
                                 console.error(error);
                                 request.sendResponse(resultFactory.buildError(error));
