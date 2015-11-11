@@ -14,6 +14,7 @@ var fs = require('fs');
 var mbClient = mbClientConn(function (isReconnecting) {
 
     mbClient.registerRoute('/files/docx/toFilledPDF', function (request) {
+        var fileId = mongo.ObjectID();
         var templateId = request.payload.templateId;
         var objToFill = request.payload.objToFill;
         var fileName = request.payload.fileName;
@@ -31,27 +32,31 @@ var mbClient = mbClientConn(function (isReconnecting) {
 
                 var resultBuffer = docToFill.getZip().generate({type: 'nodebuffer'});
 
-                fs.writeFile('./temp/' + fileName + '.docx', resultBuffer, {}, function (error, data) {
+                fs.writeFile('./temp/' + fileId + '.docx', resultBuffer, {}, function (error, data) {
                     if (error) {
                         console.error(error);
                         request.sendResponse(resultFactory.buildError(error));
                     } else {
-                        unoconv.convert('./temp/' + fileName + '.docx', 'pdf', function (error, result) {
+                        unoconv.convert('./temp/' + fileId + '.docx', 'pdf', function (error, result) {
                             if (error) {
                                 console.error(error);
                                 request.sendResponse(resultFactory.buildError(error));
                             } else {
                                 gfs.writeFile({
+                                    _id: fileId,
                                     filename: fileName + '.pdf'
                                 }, result, function (error, data) {
                                     if (error) {
                                         request.sendResponse(resultFactory.buildError(error));
                                     } else {
-                                        request.sendResponse(resultFactory.success(data._id));
+                                        request.sendResponse(resultFactory.success({
+                                            clientIdByPeriod: clientIdByPeriod,
+                                            fileId: data._id
+                                        }));
                                     }
                                 });
                             }
-                            fs.unlink('./temp/' + fileName + '.docx', function (error) {
+                            fs.unlink('./temp/' + fileId + '.docx', function (error) {
                                 if (error) {
                                     console.error(error);
                                 }
