@@ -51,7 +51,7 @@ var mbClient = mbClientConn(function (isReconnecting) {
                                     }
                                 });
                             }
-                            fs.unlink('./temp/' + clientIdByPeriod + '.docx', function (error) {
+                            fs.unlink('./temp/' + fileName + '.docx', function (error) {
                                 if (error) {
                                     console.error(error);
                                 }
