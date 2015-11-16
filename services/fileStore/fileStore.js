@@ -9,7 +9,12 @@ var gfs = Grid(db, mongo);
 
 var docxTemplater = require('docxtemplater');
 var unoconv = require('unoconv2');
+
 var fs = require('fs');
+
+unoconv.listen().stderr.on('data', function (data) {
+    console.error(data);
+});
 
 var mbClient = mbClientConn(function (isReconnecting) {
 
