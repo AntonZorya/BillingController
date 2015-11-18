@@ -18,8 +18,8 @@ exports.getClientJurCountWithoutInvoiceId = function (period, callback) {
 
 function createInvoiceByPeriod(templateId, period, callback) {
     var result = 0;
-    var limit = 20;
-    var errorsLimit = 5;
+    var limit = 1;
+    var errorsLimit = 0;
     repo.getClientsIdByPeriod(period, limit, function (error, clientIds) {
         if (error) {
             callback(error);
@@ -48,26 +48,32 @@ function createInvoiceByPeriod(templateId, period, callback) {
             }
         }
     });
-};
+}
 
 function createInvoiceForClient(templateId, clientIdByPeriod, callback) {
-    createFilledInvoice(templateId, clientIdByPeriod, function (error, invoiceResult) {
+    repo.getLastInvoiceNumber(function (error, number) {
         if (error) {
             callback(error);
         } else {
-            repo.updateInvoiceInClientJur(clientIdByPeriod, result.invoiceId, function (error) {
+            createFilledInvoice(templateId, clientIdByPeriod, number, function (error, invoiceResult) {
                 if (error) {
                     callback(error);
                 } else {
-                    callback(null, invoiceResult);
+                    repo.updateInvoiceInClientJur(clientIdByPeriod, result.invoiceId, function (error) {
+                        if (error) {
+                            callback(error);
+                        } else {
+                            callback(null, invoiceResult);
+                        }
+                    });
                 }
             });
         }
     });
-};
+}
 
-function createFilledInvoice(templateId, clientIdByPeriod, callback) {
-    getObjForFilled(clientIdByPeriod, function (error, result) {
+function createFilledInvoice(templateId, clientIdByPeriod, number, callback) {
+    getObjForFilled(clientIdByPeriod, number, function (error, result) {
         if (error) {
             callback(error);
         } else {
@@ -124,7 +130,7 @@ function createFilledInvoice(templateId, clientIdByPeriod, callback) {
     });
 }
 
-function getObjForFilled(clientIdByPeriod, callback) {
+function getObjForFilled(clientIdByPeriod, number, callback) {
 
     getClientAndBalances(clientIdByPeriod, function (error, result) {
         if (error) {
@@ -141,7 +147,7 @@ function getObjForFilled(clientIdByPeriod, callback) {
 
             result = {
                 fileName: client.name + ' ' + clientIdByPeriod,
-                invoiceNumber: '000000000',
+                invoiceNumber: ('000000000' + number.toSource()).slice(-9),
                 currentDate: date,
                 contractNumber: client.accountNumber, // номер договора
                 contractDate: client.contractDate, // дата заключения договра

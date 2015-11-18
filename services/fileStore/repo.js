@@ -73,3 +73,13 @@ exports.getForfeitForClientJur = function (clientIdByPeriod, callback) {
 exports.getBalanceForClientJur = function (clientIdByPeriod, callback) {
     balanceJur.find({clientJurId: clientIdByPeriod}).toArray(callback);
 };
+
+exports.getLastInvoiceNumber = function (callback) {
+    gfs.find().sort({'metadata.number': -1}).limit(1).toArray(function (error, file) {
+        if (error) {
+            callback(error);
+        } else {
+            callback(file.metadata.number);
+        }
+    });
+};
