@@ -2,9 +2,9 @@ var docxTemplater = require('docxtemplater');
 var fs = require('fs');
 
 var unoconv = require('unoconv2');
-unoconv.listen().stderr.on('data', function (data) {
-    console.error(data);
-});
+//unoconv.listen().stderr.on('data', function (data) {
+//    console.error(data);
+//});
 
 var repo = require('./repo');
 

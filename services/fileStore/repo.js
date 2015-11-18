@@ -75,11 +75,11 @@ exports.getBalanceForClientJur = function (clientIdByPeriod, callback) {
 };
 
 exports.getLastInvoiceNumber = function (callback) {
-    db.collection('fs.files').find().sort({'metadata.number': -1}).limit(1).toArray(function (error, file) {
+    db.collection('fs.files').find({}).sort({'metadata.number': -1}).limit(1).toArray(function (error, file) {
         if (error) {
             callback(error);
         } else {
-            callback(file.metadata.number);
+            callback(file[0].metadata.number);
         }
     });
 };
