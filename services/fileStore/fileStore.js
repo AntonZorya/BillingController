@@ -5,7 +5,7 @@ global.async = require('async');
 var mbClientConn = require("../common/mbConnection/netConnection");
 var resultFactory = require("../common/operations/resultFactory");
 
-var logic = require('logic');
+var logic = require('./logic');
 
 var mbClient = mbClientConn(function (isReconnecting) {
 
