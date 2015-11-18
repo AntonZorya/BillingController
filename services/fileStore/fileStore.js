@@ -1,4 +1,4 @@
-global.config = require('config');
+global.config = require('./config');
 global._ = require('underscore');
 global.async = require('async');
 
