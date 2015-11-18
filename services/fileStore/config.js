@@ -1,0 +1,3 @@
+exports = {
+    tmpFilePath: '/tmp/ramdisk/'
+};
