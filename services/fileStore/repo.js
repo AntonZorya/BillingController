@@ -75,7 +75,7 @@ exports.getBalanceForClientJur = function (clientIdByPeriod, callback) {
 };
 
 exports.getLastInvoiceNumber = function (callback) {
-    gfs.find().sort({'metadata.number': -1}).limit(1).toArray(function (error, file) {
+    db.fs.files.find().sort({'metadata.number': -1}).limit(1).toArray(function (error, file) {
         if (error) {
             callback(error);
         } else {
